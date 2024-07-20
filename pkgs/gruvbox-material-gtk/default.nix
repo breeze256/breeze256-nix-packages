@@ -18,13 +18,14 @@ stdenv.mkDerivation rec {
     # commit id
     rev = "a1295d8bcd4dfbd0cd6793d7b1583b442438ed89";
     fetchSubmodules = false;
-    # 这里的 SHA256 校验码不会算怎么办？先注释掉，然后构建这个软件包，Nix 会报错，并提示你正确的校验码
-    # sha256 = "sha256-m20M4+3zsH40hTpMJG9cyIjXp0xcCUBS+cCiRVLXFqM=";
+    # SHA256
+    sha256 = "sha256-VumO8F4ZrFI6GZU1XXaw4MCnP+Nla1rVS3uuSUzpl9E=";
   });
 
   # Run install script
   installPhase = ''
-    cp -r themes/* $out/share/themes
-    cp -r icons/* $out/share/icons
+    mkdir -p $out/share/themes $out/share/icons
+    cp -r themes/* $out/share/themes/
+    cp -r icons/* $out/share/icons/
   '';
 }
