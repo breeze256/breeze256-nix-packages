@@ -1,37 +1,56 @@
-# nur-packages-template
+# Breeze256's NUR Repository
 
-**A template for [NUR](https://github.com/nix-community/NUR) repositories**
+Just my personal NUR repository lol
 
-## Setup
+## Available packages
 
-1. Click on [Use this template](https://github.com/nix-community/nur-packages-template/generate) to start a repo based on this template. (Do _not_ fork it.)
-2. Add your packages to the [pkgs](./pkgs) directory and to
-   [default.nix](./default.nix)
-   * Remember to mark the broken packages as `broken = true;` in the `meta`
-     attribute, or travis (and consequently caching) will fail!
-   * Library functions, modules and overlays go in the respective directories
-3. Choose your CI: Depending on your preference you can use github actions (recommended) or [Travis ci](https://travis-ci.com).
-   - Github actions: Change your NUR repo name and optionally add a cachix name in [.github/workflows/build.yml](./.github/workflows/build.yml) and change the cron timer
-     to a random value as described in the file
-   - Travis ci: Change your NUR repo name and optionally your cachix repo name in 
-   [.travis.yml](./.travis.yml). Than enable travis in your repo. You can add a cron job in the repository settings on travis to keep your cachix cache fresh
-5. Change your travis and cachix names on the README template section and delete
-   the rest
-6. [Add yourself to NUR](https://github.com/nix-community/NUR#how-to-add-your-own-repository)
+- [gruvbox-material-gtk](./pkgs/gruvbox-material-gtk/default.nix)
 
-## README template
+## How to add the repository
 
-# nur-packages
+1. Add this to your inputs:
+```nix
+inputs = {
+  # ...
+  breeze256-NUR = {
+    url = "github:breeze256/breeze256-nix-packages";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  # ...
+};
+```
+Or, if you are in China, add this:
+```nix
+inputs = {
+  # ...
+  breeze256-NUR = {
+    url = "git+https://mirror.ghproxy.com/https://github.com/breeze256/breeze256-nix-packages";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  # ...
+};
+```
 
-**My personal [NUR](https://github.com/nix-community/NUR) repository**
+2. add this to your outputs:
+```nix
+outputs = { self, nixpkgs, ... }@inputs: {
+  nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    modules = [
+      # Add below
+      ({
+        nixpkgs.overlays = [
+          (final: prev: {
+            breeze256-NUR = inputs.breeze256-NUR.packages."${prev.system}";
+          })
+        ];
+      })
+      # Add above
 
-<!-- Remove this if you don't use github actions -->
-![Build and populate cache](https://github.com/<YOUR-GITHUB-USER>/nur-packages/workflows/Build%20and%20populate%20cache/badge.svg)
+      ./configuration.nix
+    ];
+  };
+};
+```
 
-<!--
-Uncomment this if you use travis:
-
-[![Build Status](https://travis-ci.com/<YOUR_TRAVIS_USERNAME>/nur-packages.svg?branch=master)](https://travis-ci.com/<YOUR_TRAVIS_USERNAME>/nur-packages)
--->
-[![Cachix Cache](https://img.shields.io/badge/cachix-<YOUR_CACHIX_CACHE_NAME>-blue.svg)](https://<YOUR_CACHIX_CACHE_NAME>.cachix.org)
-
+3. Install packages like `pkgs.breeze256-NUR.$somepackage`
